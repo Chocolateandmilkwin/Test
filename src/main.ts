@@ -263,9 +263,9 @@ function updateConfigFromForm(): void {
   const blInputToggle = document.getElementById("blInputToggle") as HTMLInputElement;
   currentConfig.blInput = blInputToggle.checked ? '1' : '0';
 
-  // BUInput toggle: '1' for enabled, '0' for disabled
+  // BUInput toggle: '0' when buttons enabled (checked), '1' when disabled (inverted logic)
   const buInputToggle = document.getElementById("buInputToggle") as HTMLInputElement;
-  currentConfig.buInput = buInputToggle.checked ? '1' : '0';
+  currentConfig.buInput = buInputToggle.checked ? '0' : '1';
   
   // Only get button labels if buttons are enabled
   if (buInputToggle.checked) {
@@ -276,12 +276,12 @@ function updateConfigFromForm(): void {
     currentConfig.buLabel2 = '';
   }
 
-  // Alarm text toggle: if disabled, force a space character
+  // Alarm text toggle: if disabled, use empty string (just CR LF in output)
   const almTxtToggle = document.getElementById("almTxtToggle") as HTMLInputElement;
   if (almTxtToggle.checked) {
     currentConfig.almTxt1 = getInputValue("almTxt1");
   } else {
-    currentConfig.almTxt1 = ' ';
+    currentConfig.almTxt1 = '';
   }
 }
 
