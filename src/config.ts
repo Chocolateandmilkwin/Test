@@ -31,34 +31,35 @@ export interface ConfigData {
 }
 
 export const defaultConfig: ConfigData = {
-  plugin: '#Plugin 02 analogue.xml',
-  versUsr: '2.15',
-  dateUsr: '03-10-16',
-  fileUsr: 'Panel Pilot SGD 24-M420.cfg',
-  type1: 'C',
-  cal1Hi: { voltage: '03.33', value: '100', percent: '100%' },
-  cal1Mi: { voltage: '00.10', value: '0', percent: '50%' },
-  cal1Lo: { voltage: '00.00', value: '-100', percent: '0%' },
-  cal2Hi: { voltage: '02.51', percent: '003' },
-  cal2Lo: { voltage: '00.01', percent: '100' },
-  label1: 'Pitch',
-  scale1_0: '-100',
-  scale1_50: '0',
-  scale1_100: '100',
-  s1_0col: 'ffff',
-  s1_50col: 'ffff',
-  s1_100col: 'ffff',
-  l1col: 'ffff',
-  a1col: 'f800 f800 f800 f800 f800 f800 f800 f800 f800 f800 ffff 3666 3666 3666 3666 3666 3666 3666 3666 3666 3666 #',
-  k1col: '0000',
-  p1col: 'ffff',
-  blPer: '80',
-  blInput: '1',
-  buInput: '1',
-  buLabel1: '',
-  buLabel2: '',
-  almTxt1: '',
-  flash: '30'
+  plugin: "#Plugin 02 analogue.xml",
+  versUsr: "2.15",
+  dateUsr: "03-10-16",
+  fileUsr: "Panel Pilot SGD 24-M420.cfg",
+  type1: "C",
+  cal1Hi: { voltage: "03.33", value: "100", percent: "100%" },
+  cal1Mi: { voltage: "00.10", value: "0", percent: "50%" },
+  cal1Lo: { voltage: "00.00", value: "-100", percent: "0%" },
+  cal2Hi: { voltage: "02.51", percent: "003" },
+  cal2Lo: { voltage: "00.01", percent: "100" },
+  label1: "Pitch",
+  scale1_0: "-100",
+  scale1_50: "0",
+  scale1_100: "100",
+  s1_0col: "ffff",
+  s1_50col: "ffff",
+  s1_100col: "ffff",
+  l1col: "ffff",
+  a1col:
+    "f800 f800 f800 f800 f800 f800 f800 f800 f800 f800 ffff 3666 3666 3666 3666 3666 3666 3666 3666 3666 3666 #",
+  k1col: "0000",
+  p1col: "ffff",
+  blPer: "80",
+  blInput: "1",
+  buInput: "0",
+  buLabel1: "",
+  buLabel2: "",
+  almTxt1: "",
+  flash: "30",
 };
 
 export function generateConfigFile(config: ConfigData): string {
@@ -90,28 +91,30 @@ export function generateConfigFile(config: ConfigData): string {
     `BuLabel1 ${config.buLabel1}`,
     `BuLabel2 ${config.buLabel2}`,
     // AlmTxt1 should have no space after it when empty
-    config.almTxt1 ? `AlmTxt1 ${config.almTxt1}` : 'AlmTxt1',
-    `Flash ${config.flash}`
+    config.almTxt1 ? `AlmTxt1 ${config.almTxt1}` : "AlmTxt1",
+    `Flash ${config.flash}`,
   ];
-  
+
   // Join lines with CR LF (Windows-style line endings required by device)
-  let content = lines.join('\r\n') + '\r\n';
-  
+  let content = lines.join("\r\n") + "\r\n";
+
   // Pad to 1024 bytes with spaces (required for XMODEM-1K transfer)
   const targetSize = 1024;
   if (content.length < targetSize) {
-    content = content.padEnd(targetSize, ' ');
+    content = content.padEnd(targetSize, " ");
   } else if (content.length > targetSize) {
-    console.warn(`Config file size (${content.length} bytes) exceeds ${targetSize} bytes limit`);
+    console.warn(
+      `Config file size (${content.length} bytes) exceeds ${targetSize} bytes limit`,
+    );
   }
-  
+
   return content;
 }
 
 export function formatVoltage(voltage: number): string {
   // Format voltage as XX.XX (5 characters total with leading zeros)
   const absVoltage = Math.abs(voltage);
-  const formatted = absVoltage.toFixed(2).padStart(5, '0');
+  const formatted = absVoltage.toFixed(2).padStart(5, "0");
   return formatted;
 }
 
@@ -129,19 +132,19 @@ export function parseVoltageFromReading(reading: string): string | null {
 export function rgb565ToHtml(rgb565: string): string {
   const value = parseInt(rgb565, 16);
   // RGB565: RRRRRGGGGGGBBBBB
-  const r5 = (value >> 11) & 0x1F;
-  const g6 = (value >> 5) & 0x3F;
-  const b5 = value & 0x1F;
+  const r5 = (value >> 11) & 0x1f;
+  const g6 = (value >> 5) & 0x3f;
+  const b5 = value & 0x1f;
   // Expand to 8-bit by shifting and filling low bits
   const r8 = (r5 << 3) | (r5 >> 2);
   const g8 = (g6 << 2) | (g6 >> 4);
   const b8 = (b5 << 3) | (b5 >> 2);
-  return `#${r8.toString(16).padStart(2, '0')}${g8.toString(16).padStart(2, '0')}${b8.toString(16).padStart(2, '0')}`;
+  return `#${r8.toString(16).padStart(2, "0")}${g8.toString(16).padStart(2, "0")}${b8.toString(16).padStart(2, "0")}`;
 }
 
 // Convert HTML color (#RRGGBB) to RGB565 hex (4 chars like "f800")
 export function htmlToRgb565(htmlColor: string): string {
-  const hex = htmlColor.replace('#', '');
+  const hex = htmlColor.replace("#", "");
   const r8 = parseInt(hex.substring(0, 2), 16);
   const g8 = parseInt(hex.substring(2, 4), 16);
   const b8 = parseInt(hex.substring(4, 6), 16);
@@ -150,16 +153,20 @@ export function htmlToRgb565(htmlColor: string): string {
   const g6 = g8 >> 2;
   const b5 = b8 >> 3;
   const rgb565 = (r5 << 11) | (g6 << 5) | b5;
-  return rgb565.toString(16).padStart(4, '0');
+  return rgb565.toString(16).padStart(4, "0");
 }
 
 // Parse a1col string into array of RGB565 colors (always returns 21 colors)
 export function parseA1col(a1col: string): string[] {
   // Format: "f800 f800 f800 ... #" - space-separated colors ending with #
-  const colors = a1col.replace('#', '').trim().split(/\s+/).filter(c => c.length > 0);
+  const colors = a1col
+    .replace("#", "")
+    .trim()
+    .split(/\s+/)
+    .filter((c) => c.length > 0);
   // Ensure we always have exactly 21 colors, pad with white if needed
   while (colors.length < 21) {
-    colors.push('ffff');
+    colors.push("ffff");
   }
   return colors.slice(0, 21);
 }
@@ -169,7 +176,7 @@ export function formatA1col(colors: string[]): string {
   // Ensure we have exactly 21 colors, pad with white if needed
   const paddedColors = [...colors];
   while (paddedColors.length < 21) {
-    paddedColors.push('ffff');
+    paddedColors.push("ffff");
   }
-  return paddedColors.slice(0, 21).join(' ') + ' #';
+  return paddedColors.slice(0, 21).join(" ") + " #";
 }
