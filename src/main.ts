@@ -16,10 +16,12 @@ import "./style.css";
 const DISCONNECT_DELAY_MS = 1000;
 const ARC_COLOR_COUNT = 21;
 const VOLTAGE_ADJUSTMENT_STEP = 0.01;
+const VOLTAGE_TO_CURRENT_MULTIPLIER = 10; // Multiply voltage by 10 to get milliamps
 
 // Global state
 let currentConfig: ConfigData = { ...defaultConfig };
 let device: WebSerialDevice | null = null;
+let displayAsCurrent = false; // Toggle between voltage (false) and current/mA (true)
 
 // Generate HTML for arc color input fields
 function generateArcColorInputs(colors: string[]): string {
@@ -61,7 +63,15 @@ function createUI(): void {
       </div>
       
       <div class="section voltage-section">
-        <h2>Voltage Readings</h2>
+        <h2 id="readingsHeading">Voltage Readings</h2>
+        <div class="form-group toggle-group readings-toggle">
+          <label class="toggle-label">
+            <span>Display as Current (mA)</span>
+            <input type="checkbox" id="displayModeToggle">
+            <span class="toggle-slider"></span>
+          </label>
+          <small class="toggle-hint">When ON, shows current (voltage × 10)</small>
+        </div>
         <button id="readVoltageBtn" class="btn btn-primary" disabled>Read Voltage (x)</button>
         <div class="voltage-display">
           <div class="voltage-card">
@@ -842,6 +852,21 @@ function setupEventListeners(): void {
   buInputToggle.addEventListener("change", updateToggleVisibility);
   almTxtToggle.addEventListener("change", updateToggleVisibility);
 
+  // Display mode toggle (voltage vs current)
+  const displayModeToggle = document.getElementById("displayModeToggle") as HTMLInputElement;
+  displayModeToggle.addEventListener("change", () => {
+    displayAsCurrent = displayModeToggle.checked;
+    // Update heading
+    const heading = document.getElementById("readingsHeading")!;
+    heading.textContent = displayAsCurrent ? "Current Readings" : "Voltage Readings";
+    // Re-read and display if we have values showing
+    const rdg1Display = document.getElementById("rdg1Display")!;
+    if (rdg1Display.textContent !== "--" && rdg1Display.textContent !== "Error" && rdg1Display.textContent !== "Reading...") {
+      // Trigger a new reading to refresh the display
+      document.getElementById("readVoltageBtn")?.click();
+    }
+  });
+
   // Initialize visibility based on current toggle states
   updateToggleVisibility();
 }
@@ -849,7 +874,13 @@ function setupEventListeners(): void {
 function formatVoltageDisplay(reading: string): string {
   const voltage = parseVoltageFromReading(reading);
   if (voltage) {
-    return `<span class="voltage-number">${voltage} V</span><br><small>${reading}</small>`;
+    if (displayAsCurrent) {
+      // Convert voltage to milliamps
+      const current = (parseFloat(voltage) * VOLTAGE_TO_CURRENT_MULTIPLIER).toFixed(1);
+      return `<span class="voltage-number">${current} mA</span><br><small>${reading}</small>`;
+    } else {
+      return `<span class="voltage-number">${voltage} V</span><br><small>${reading}</small>`;
+    }
   }
   return reading;
 }

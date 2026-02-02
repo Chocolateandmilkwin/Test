@@ -523,6 +523,10 @@ h3 {
   color: #718096;
 }
 
+.readings-toggle {
+  margin-bottom: 1rem;
+}
+
 @media (prefers-color-scheme: dark) {
   .toggle-label span:first-child {
     color: #a0aec0;
