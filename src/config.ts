@@ -93,8 +93,8 @@ export function generateConfigFile(config: ConfigData): string {
     `Flash ${config.flash}`
   ];
   
-  // Join lines with newlines and add a trailing newline
-  let content = lines.join('\n') + '\n';
+  // Join lines with CR LF (Windows-style line endings required by device)
+  let content = lines.join('\r\n') + '\r\n';
   
   // Pad to 1024 bytes with spaces (required for XMODEM-1K transfer)
   const targetSize = 1024;
