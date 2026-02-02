@@ -48,6 +48,15 @@ function createUI(): void {
       <div class="section config-section">
         <h2>Configuration</h2>
         <form id="configForm">
+          <div class="form-group toggle-group">
+            <label class="toggle-label">
+              <span>Backlight via Input 2</span>
+              <input type="checkbox" id="blInputToggle" ${currentConfig.blInput === '1' ? 'checked' : ''}>
+              <span class="toggle-slider"></span>
+            </label>
+            <small class="toggle-hint">When OFF, backlight is controlled via buttons</small>
+          </div>
+          
           <div class="form-group">
             <label for="label1">Label</label>
             <input type="text" id="label1" value="${currentConfig.label1}">
@@ -57,23 +66,23 @@ function createUI(): void {
           <div class="calibration-group">
             <div class="cal-row">
               <span class="cal-label">Max Pitch (Cal1Hi)</span>
-              <input type="text" id="cal1HiVoltage" value="${currentConfig.cal1Hi.voltage}" placeholder="Voltage">
-              <input type="text" id="cal1HiValue" value="${currentConfig.cal1Hi.value}" placeholder="Value">
-              <input type="text" id="cal1HiPercent" value="${currentConfig.cal1Hi.percent}" placeholder="Percent">
+              <input type="number" step="0.01" id="cal1HiVoltage" value="${parseFloat(currentConfig.cal1Hi.voltage)}" placeholder="Voltage">
+              <input type="number" id="cal1HiValue" value="${parseInt(currentConfig.cal1Hi.value)}" placeholder="Value">
+              <input type="number" id="cal1HiPercent" value="${parseInt(currentConfig.cal1Hi.percent)}" placeholder="Percent">
               <button type="button" id="setCal1HiBtn" class="btn btn-small" disabled>Set from Input 1</button>
             </div>
             <div class="cal-row">
               <span class="cal-label">Zero Pitch (Cal1Mi)</span>
-              <input type="text" id="cal1MiVoltage" value="${currentConfig.cal1Mi.voltage}" placeholder="Voltage">
-              <input type="text" id="cal1MiValue" value="${currentConfig.cal1Mi.value}" placeholder="Value">
-              <input type="text" id="cal1MiPercent" value="${currentConfig.cal1Mi.percent}" placeholder="Percent">
+              <input type="number" step="0.01" id="cal1MiVoltage" value="${parseFloat(currentConfig.cal1Mi.voltage)}" placeholder="Voltage">
+              <input type="number" id="cal1MiValue" value="${parseInt(currentConfig.cal1Mi.value)}" placeholder="Value">
+              <input type="number" id="cal1MiPercent" value="${parseInt(currentConfig.cal1Mi.percent)}" placeholder="Percent">
               <button type="button" id="setCal1MiBtn" class="btn btn-small" disabled>Set from Input 1</button>
             </div>
             <div class="cal-row">
               <span class="cal-label">Min Pitch (Cal1Lo)</span>
-              <input type="text" id="cal1LoVoltage" value="${currentConfig.cal1Lo.voltage}" placeholder="Voltage">
-              <input type="text" id="cal1LoValue" value="${currentConfig.cal1Lo.value}" placeholder="Value">
-              <input type="text" id="cal1LoPercent" value="${currentConfig.cal1Lo.percent}" placeholder="Percent">
+              <input type="number" step="0.01" id="cal1LoVoltage" value="${parseFloat(currentConfig.cal1Lo.voltage)}" placeholder="Voltage">
+              <input type="number" id="cal1LoValue" value="${parseInt(currentConfig.cal1Lo.value)}" placeholder="Value">
+              <input type="number" id="cal1LoPercent" value="${parseInt(currentConfig.cal1Lo.percent)}" placeholder="Percent">
               <button type="button" id="setCal1LoBtn" class="btn btn-small" disabled>Set from Input 1</button>
             </div>
           </div>
@@ -83,14 +92,14 @@ function createUI(): void {
             <div class="calibration-group">
               <div class="cal-row">
                 <span class="cal-label">Brightness High (Cal2Hi)</span>
-                <input type="text" id="cal2HiVoltage" value="${currentConfig.cal2Hi.voltage}" placeholder="Voltage">
-                <input type="text" id="cal2HiPercent" value="${currentConfig.cal2Hi.percent}" placeholder="Percent">
+                <input type="number" step="0.01" id="cal2HiVoltage" value="${parseFloat(currentConfig.cal2Hi.voltage)}" placeholder="Voltage">
+                <input type="number" id="cal2HiPercent" value="${parseInt(currentConfig.cal2Hi.percent)}" placeholder="Percent">
                 <button type="button" id="setCal2HiBtn" class="btn btn-small" disabled>Set from Input 2</button>
               </div>
               <div class="cal-row">
                 <span class="cal-label">Brightness Low (Cal2Lo)</span>
-                <input type="text" id="cal2LoVoltage" value="${currentConfig.cal2Lo.voltage}" placeholder="Voltage">
-                <input type="text" id="cal2LoPercent" value="${currentConfig.cal2Lo.percent}" placeholder="Percent">
+                <input type="number" step="0.01" id="cal2LoVoltage" value="${parseFloat(currentConfig.cal2Lo.voltage)}" placeholder="Voltage">
+                <input type="number" id="cal2LoPercent" value="${parseInt(currentConfig.cal2Lo.percent)}" placeholder="Percent">
                 <button type="button" id="setCal2LoBtn" class="btn btn-small" disabled>Set from Input 2</button>
               </div>
             </div>
@@ -147,15 +156,6 @@ function createUI(): void {
           </div>
           
           <h3>Display Settings</h3>
-          <div class="form-group toggle-group">
-            <label class="toggle-label">
-              <span>Backlight via Input 2</span>
-              <input type="checkbox" id="blInputToggle" ${currentConfig.blInput === '1' ? 'checked' : ''}>
-              <span class="toggle-slider"></span>
-            </label>
-            <small class="toggle-hint">When OFF, backlight is controlled via buttons</small>
-          </div>
-          
           <div class="form-group toggle-group">
             <label class="toggle-label">
               <span>Enable Buttons</span>
@@ -220,29 +220,31 @@ function updateConfigFromForm(): void {
   // Version, Date, and File Name are fixed values from defaultConfig
   currentConfig.label1 = getInputValue("label1");
 
+  // Cal1 inputs - format voltage as XX.XX, value as integer, percent as X%
   currentConfig.cal1Hi = {
-    voltage: getInputValue("cal1HiVoltage"),
+    voltage: formatVoltageForConfig(getInputValue("cal1HiVoltage")),
     value: getInputValue("cal1HiValue"),
-    percent: getInputValue("cal1HiPercent"),
+    percent: formatPercentForCal1(getInputValue("cal1HiPercent")),
   };
   currentConfig.cal1Mi = {
-    voltage: getInputValue("cal1MiVoltage"),
+    voltage: formatVoltageForConfig(getInputValue("cal1MiVoltage")),
     value: getInputValue("cal1MiValue"),
-    percent: getInputValue("cal1MiPercent"),
+    percent: formatPercentForCal1(getInputValue("cal1MiPercent")),
   };
   currentConfig.cal1Lo = {
-    voltage: getInputValue("cal1LoVoltage"),
+    voltage: formatVoltageForConfig(getInputValue("cal1LoVoltage")),
     value: getInputValue("cal1LoValue"),
-    percent: getInputValue("cal1LoPercent"),
+    percent: formatPercentForCal1(getInputValue("cal1LoPercent")),
   };
 
+  // Cal2 inputs - format voltage as XX.XX, percent as 3-digit number
   currentConfig.cal2Hi = {
-    voltage: getInputValue("cal2HiVoltage"),
-    percent: getInputValue("cal2HiPercent"),
+    voltage: formatVoltageForConfig(getInputValue("cal2HiVoltage")),
+    percent: formatPercentForCal2(getInputValue("cal2HiPercent")),
   };
   currentConfig.cal2Lo = {
-    voltage: getInputValue("cal2LoVoltage"),
-    percent: getInputValue("cal2LoPercent"),
+    voltage: formatVoltageForConfig(getInputValue("cal2LoVoltage")),
+    percent: formatPercentForCal2(getInputValue("cal2LoPercent")),
   };
 
   currentConfig.scale1_0 = getInputValue("scale1_0");
@@ -281,6 +283,26 @@ function updateConfigFromForm(): void {
   } else {
     currentConfig.almTxt1 = ' ';
   }
+}
+
+// Format voltage as XX.XX (5 characters with leading zeros)
+function formatVoltageForConfig(value: string): string {
+  const num = parseFloat(value) || 0;
+  // Ensure we get leading zeros for values < 10 (e.g., 3.33 -> 03.33)
+  const fixed = num.toFixed(2);
+  return fixed.padStart(5, '0');
+}
+
+// Format percent for Cal1 as X%
+function formatPercentForCal1(value: string): string {
+  const num = parseInt(value, 10) || 0;
+  return `${num}%`;
+}
+
+// Format percent for Cal2 as 3-digit number (e.g., 003, 100)
+function formatPercentForCal2(value: string): string {
+  const num = parseInt(value, 10) || 0;
+  return num.toString().padStart(3, '0');
 }
 
 function getInputValue(id: string): string {
@@ -404,39 +426,65 @@ function setupEventListeners(): void {
       }
     });
 
-  // Calibration buttons
-  document.getElementById("setCal1HiBtn")!.addEventListener("click", () => {
-    if (lastRdg1Voltage) {
-      (document.getElementById("cal1HiVoltage") as HTMLInputElement).value =
-        lastRdg1Voltage;
+  // Helper function to read voltage and update display
+  async function readAndGetVoltage(): Promise<{ rdg1: string | null; rdg2: string | null }> {
+    if (!device) return { rdg1: null, rdg2: null };
+
+    const rdg1Display = document.getElementById("rdg1Display")!;
+    const rdg2Display = document.getElementById("rdg2Display")!;
+
+    rdg1Display.textContent = "Reading...";
+    rdg2Display.textContent = "Reading...";
+
+    const readings = await device.readVoltage();
+    if (readings) {
+      rdg1Display.innerHTML = formatVoltageDisplay(readings.rdg1);
+      rdg2Display.innerHTML = formatVoltageDisplay(readings.rdg2);
+
+      lastRdg1Voltage = parseVoltageFromReading(readings.rdg1);
+      lastRdg2Voltage = parseVoltageFromReading(readings.rdg2);
+      
+      return { rdg1: lastRdg1Voltage, rdg2: lastRdg2Voltage };
+    } else {
+      rdg1Display.textContent = "Error";
+      rdg2Display.textContent = "Error";
+      return { rdg1: null, rdg2: null };
+    }
+  }
+
+  // Calibration buttons - read from device when pressed
+  document.getElementById("setCal1HiBtn")!.addEventListener("click", async () => {
+    const { rdg1 } = await readAndGetVoltage();
+    if (rdg1) {
+      (document.getElementById("cal1HiVoltage") as HTMLInputElement).value = rdg1;
     }
   });
 
-  document.getElementById("setCal1MiBtn")!.addEventListener("click", () => {
-    if (lastRdg1Voltage) {
-      (document.getElementById("cal1MiVoltage") as HTMLInputElement).value =
-        lastRdg1Voltage;
+  document.getElementById("setCal1MiBtn")!.addEventListener("click", async () => {
+    const { rdg1 } = await readAndGetVoltage();
+    if (rdg1) {
+      (document.getElementById("cal1MiVoltage") as HTMLInputElement).value = rdg1;
     }
   });
 
-  document.getElementById("setCal1LoBtn")!.addEventListener("click", () => {
-    if (lastRdg1Voltage) {
-      (document.getElementById("cal1LoVoltage") as HTMLInputElement).value =
-        lastRdg1Voltage;
+  document.getElementById("setCal1LoBtn")!.addEventListener("click", async () => {
+    const { rdg1 } = await readAndGetVoltage();
+    if (rdg1) {
+      (document.getElementById("cal1LoVoltage") as HTMLInputElement).value = rdg1;
     }
   });
 
-  document.getElementById("setCal2HiBtn")!.addEventListener("click", () => {
-    if (lastRdg2Voltage) {
-      (document.getElementById("cal2HiVoltage") as HTMLInputElement).value =
-        lastRdg2Voltage;
+  document.getElementById("setCal2HiBtn")!.addEventListener("click", async () => {
+    const { rdg2 } = await readAndGetVoltage();
+    if (rdg2) {
+      (document.getElementById("cal2HiVoltage") as HTMLInputElement).value = rdg2;
     }
   });
 
-  document.getElementById("setCal2LoBtn")!.addEventListener("click", () => {
-    if (lastRdg2Voltage) {
-      (document.getElementById("cal2LoVoltage") as HTMLInputElement).value =
-        lastRdg2Voltage;
+  document.getElementById("setCal2LoBtn")!.addEventListener("click", async () => {
+    const { rdg2 } = await readAndGetVoltage();
+    if (rdg2) {
+      (document.getElementById("cal2LoVoltage") as HTMLInputElement).value = rdg2;
     }
   });
 
