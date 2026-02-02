@@ -81,24 +81,24 @@ function createUI(): void {
             <input type="text" id="label1" value="${currentConfig.label1}">
           </div>
           
-          <h3>Pitch Calibration (Cal1)</h3>
+          <h3>Pitch Calibration</h3>
           <div class="calibration-group">
             <div class="cal-row">
-              <span class="cal-label">Max Pitch (Cal1Hi)</span>
+              <span class="cal-label">Max Pitch</span>
               <input type="number" step="0.01" id="cal1HiVoltage" value="${parseFloat(currentConfig.cal1Hi.voltage)}" placeholder="Voltage">
               <input type="number" id="cal1HiValue" value="${parseInt(currentConfig.cal1Hi.value)}" placeholder="Value">
               <input type="number" id="cal1HiPercent" value="${parseInt(currentConfig.cal1Hi.percent)}" placeholder="Percent">
               <button type="button" id="setCal1HiBtn" class="btn btn-small" disabled>Set from Input 1</button>
             </div>
             <div class="cal-row">
-              <span class="cal-label">Zero Pitch (Cal1Mi)</span>
+              <span class="cal-label">Zero Pitch</span>
               <input type="number" step="0.01" id="cal1MiVoltage" value="${parseFloat(currentConfig.cal1Mi.voltage)}" placeholder="Voltage">
               <input type="number" id="cal1MiValue" value="${parseInt(currentConfig.cal1Mi.value)}" placeholder="Value">
               <input type="number" id="cal1MiPercent" value="${parseInt(currentConfig.cal1Mi.percent)}" placeholder="Percent">
               <button type="button" id="setCal1MiBtn" class="btn btn-small" disabled>Set from Input 1</button>
             </div>
             <div class="cal-row">
-              <span class="cal-label">Min Pitch (Cal1Lo)</span>
+              <span class="cal-label">Min Pitch</span>
               <input type="number" step="0.01" id="cal1LoVoltage" value="${parseFloat(currentConfig.cal1Lo.voltage)}" placeholder="Voltage">
               <input type="number" id="cal1LoValue" value="${parseInt(currentConfig.cal1Lo.value)}" placeholder="Value">
               <input type="number" id="cal1LoPercent" value="${parseInt(currentConfig.cal1Lo.percent)}" placeholder="Percent">
@@ -107,16 +107,16 @@ function createUI(): void {
           </div>
           
           <div id="cal2Section">
-            <h3>Brightness Calibration (Cal2)</h3>
+            <h3>Brightness Calibration</h3>
             <div class="calibration-group">
               <div class="cal-row">
-                <span class="cal-label">Brightness High (Cal2Hi)</span>
+                <span class="cal-label">Brightness High</span>
                 <input type="number" step="0.01" id="cal2HiVoltage" value="${parseFloat(currentConfig.cal2Hi.voltage)}" placeholder="Voltage">
                 <input type="number" id="cal2HiPercent" value="${parseInt(currentConfig.cal2Hi.percent)}" placeholder="Percent">
                 <button type="button" id="setCal2HiBtn" class="btn btn-small" disabled>Set from Input 2</button>
               </div>
               <div class="cal-row">
-                <span class="cal-label">Brightness Low (Cal2Lo)</span>
+                <span class="cal-label">Brightness Low</span>
                 <input type="number" step="0.01" id="cal2LoVoltage" value="${parseFloat(currentConfig.cal2Lo.voltage)}" placeholder="Voltage">
                 <input type="number" id="cal2LoPercent" value="${parseInt(currentConfig.cal2Lo.percent)}" placeholder="Percent">
                 <button type="button" id="setCal2LoBtn" class="btn btn-small" disabled>Set from Input 2</button>
