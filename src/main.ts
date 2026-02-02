@@ -478,11 +478,9 @@ function setupEventListeners(): void {
       device.clearBuffer();
       await device.send("s");
 
-      // Wait for 'XMODEM' response indicating transfer started
-      await device.waitFor("XMODEM", 5000);
-
       // Clear buffer to ensure XModem class can detect the 'C' command properly
       device.clearBuffer();
+      await device.waitFor("C", 5000);
 
       showStatus(
         "uploadStatus",
