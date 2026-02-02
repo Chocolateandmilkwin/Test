@@ -15,6 +15,7 @@ import "./style.css";
 // Constants
 const DISCONNECT_DELAY_MS = 1000;
 const ARC_COLOR_COUNT = 21;
+const VOLTAGE_ADJUSTMENT_STEP = 0.01;
 
 // Global state
 let currentConfig: ConfigData = { ...defaultConfig };
@@ -190,7 +191,7 @@ function createUI(): void {
           <div class="form-group toggle-group">
             <label class="toggle-label">
               <span>Enable Buttons</span>
-              <input type="checkbox" id="buInputToggle" ${currentConfig.buInput === "1" ? "checked" : ""}>
+              <input type="checkbox" id="buInputToggle" ${currentConfig.buInput === "0" ? "checked" : ""}>
               <span class="toggle-slider"></span>
             </label>
           </div>
@@ -223,6 +224,7 @@ function createUI(): void {
       
       <div class="section upload-section">
         <h2>Upload Configuration</h2>
+        <div id="validationStatus" class="validation-box" style="display: none;"></div>
         <div class="button-group">
           <button id="previewBtn" class="btn btn-secondary">Preview Config File</button>
           <button id="downloadBtn" class="btn btn-secondary">Download Config File</button>
@@ -328,6 +330,71 @@ function updateConfigFromForm(): void {
   } else {
     currentConfig.almTxt1 = "";
   }
+}
+
+// Validate and fix pitch calibration voltage ordering
+// Returns an array of messages describing any changes made
+function validateAndFixPitchCalibration(): string[] {
+  const messages: string[] = [];
+  
+  // Get current voltage values from the form
+  let maxV = parseFloat(getInputValue("cal1HiVoltage")) || 0;
+  let midV = parseFloat(getInputValue("cal1MiVoltage")) || 0;
+  let minV = parseFloat(getInputValue("cal1LoVoltage")) || 0;
+  
+  // Check if all values are the same - need to fix
+  if (maxV === midV && midV === minV) {
+    // Spread them out slightly
+    midV = maxV + VOLTAGE_ADJUSTMENT_STEP;
+    minV = maxV + VOLTAGE_ADJUSTMENT_STEP * 2;
+    messages.push(`All pitch voltages were the same (${maxV}V). Adjusted: Max=${maxV}V, Mid=${midV.toFixed(2)}V, Min=${minV.toFixed(2)}V`);
+  }
+  
+  // Check if any two values are the same
+  if (maxV === midV) {
+    // Adjust mid slightly
+    midV = (maxV + minV) / 2;
+    if (midV === maxV) midV = maxV + (minV > maxV ? VOLTAGE_ADJUSTMENT_STEP : -VOLTAGE_ADJUSTMENT_STEP);
+    messages.push(`Max and Mid pitch voltages were the same. Adjusted Mid to ${midV.toFixed(2)}V`);
+  }
+  if (midV === minV) {
+    // Adjust min slightly
+    minV = midV + (maxV > midV ? -VOLTAGE_ADJUSTMENT_STEP : VOLTAGE_ADJUSTMENT_STEP);
+    messages.push(`Mid and Min pitch voltages were the same. Adjusted Min to ${minV.toFixed(2)}V`);
+  }
+  if (maxV === minV && maxV !== midV) {
+    // Adjust min to be consistent with the ordering
+    minV = midV + (midV > maxV ? VOLTAGE_ADJUSTMENT_STEP : -VOLTAGE_ADJUSTMENT_STEP);
+    messages.push(`Max and Min pitch voltages were the same. Adjusted Min to ${minV.toFixed(2)}V`);
+  }
+  
+  // Determine the expected direction based on mid vs min
+  // If mid > min, then max should be > mid (ascending order: min < mid < max)
+  // If mid < min, then max should be < mid (descending order: min > mid > max)
+  const ascending = midV > minV;
+  
+  if (ascending) {
+    // Expect: min < mid < max
+    if (maxV <= midV) {
+      maxV = midV + VOLTAGE_ADJUSTMENT_STEP;
+      messages.push(`Max pitch voltage adjusted to ${maxV.toFixed(2)}V (must be greater than Mid when Mid > Min)`);
+    }
+  } else {
+    // Expect: min > mid > max
+    if (maxV >= midV) {
+      maxV = midV - VOLTAGE_ADJUSTMENT_STEP;
+      messages.push(`Max pitch voltage adjusted to ${maxV.toFixed(2)}V (must be less than Mid when Mid < Min)`);
+    }
+  }
+  
+  // Update the form fields if changes were made
+  if (messages.length > 0) {
+    (document.getElementById("cal1HiVoltage") as HTMLInputElement).value = maxV.toFixed(2);
+    (document.getElementById("cal1MiVoltage") as HTMLInputElement).value = midV.toFixed(2);
+    (document.getElementById("cal1LoVoltage") as HTMLInputElement).value = minV.toFixed(2);
+  }
+  
+  return messages;
 }
 
 // Format voltage as XX.XX (5 characters with leading zeros)
@@ -623,6 +690,28 @@ function setupEventListeners(): void {
   // Upload button
   document.getElementById("uploadBtn")!.addEventListener("click", async () => {
     if (!device) return;
+
+    // Validate and fix pitch calibration voltages before upload
+    const validationMessages = validateAndFixPitchCalibration();
+    const validationBox = document.getElementById("validationStatus")!;
+    
+    if (validationMessages.length > 0) {
+      // Build validation message safely using DOM manipulation
+      validationBox.textContent = "";
+      const strong = document.createElement("strong");
+      strong.textContent = "Pitch calibration adjusted:";
+      validationBox.appendChild(strong);
+      const ul = document.createElement("ul");
+      for (const msg of validationMessages) {
+        const li = document.createElement("li");
+        li.textContent = msg;
+        ul.appendChild(li);
+      }
+      validationBox.appendChild(ul);
+      validationBox.style.display = "block";
+    } else {
+      validationBox.style.display = "none";
+    }
 
     updateConfigFromForm();
     const configContent = generateConfigFile(currentConfig);
