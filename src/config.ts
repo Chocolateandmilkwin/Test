@@ -180,3 +180,148 @@ export function formatA1col(colors: string[]): string {
   }
   return paddedColors.slice(0, 21).join(" ") + " #";
 }
+
+// Parse a config file string into ConfigData
+export function parseConfigFile(content: string): ConfigData {
+  const config = { ...defaultConfig };
+  const lines = content.split(/\r?\n/);
+
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    if (!trimmedLine || trimmedLine.startsWith("#")) {
+      // Plugin line starts with #
+      if (trimmedLine.startsWith("#Plugin")) {
+        config.plugin = trimmedLine;
+      }
+      continue;
+    }
+
+    // Parse key-value pairs
+    const spaceIndex = trimmedLine.indexOf(" ");
+    if (spaceIndex === -1) {
+      // Handle keys with no value (like empty AlmTxt1)
+      const key = trimmedLine.toLowerCase();
+      if (key === "almtxt1") {
+        config.almTxt1 = "";
+      }
+      continue;
+    }
+
+    const key = trimmedLine.substring(0, spaceIndex).toLowerCase();
+    const value = trimmedLine.substring(spaceIndex + 1).trim();
+
+    switch (key) {
+      case "vers_usr":
+        config.versUsr = value;
+        break;
+      case "date_usr":
+        config.dateUsr = value;
+        break;
+      case "file_usr":
+        config.fileUsr = value;
+        break;
+      case "type1":
+        config.type1 = value;
+        break;
+      case "cal1hi": {
+        const parts = value.split(/\s+/);
+        config.cal1Hi = {
+          voltage: parts[0] || "00.00",
+          value: parts[1] || "0",
+          percent: parts[2] || "0%",
+        };
+        break;
+      }
+      case "cal1mi": {
+        const parts = value.split(/\s+/);
+        config.cal1Mi = {
+          voltage: parts[0] || "00.00",
+          value: parts[1] || "0",
+          percent: parts[2] || "0%",
+        };
+        break;
+      }
+      case "cal1lo": {
+        const parts = value.split(/\s+/);
+        config.cal1Lo = {
+          voltage: parts[0] || "00.00",
+          value: parts[1] || "0",
+          percent: parts[2] || "0%",
+        };
+        break;
+      }
+      case "cal2hi": {
+        const parts = value.split(/\s+/);
+        config.cal2Hi = {
+          voltage: parts[0] || "00.00",
+          percent: parts[1] || "000",
+        };
+        break;
+      }
+      case "cal2lo": {
+        const parts = value.split(/\s+/);
+        config.cal2Lo = {
+          voltage: parts[0] || "00.00",
+          percent: parts[1] || "000",
+        };
+        break;
+      }
+      case "label1":
+        config.label1 = value;
+        break;
+      case "scale1_0":
+        config.scale1_0 = value;
+        break;
+      case "scale1_50":
+        config.scale1_50 = value;
+        break;
+      case "scale1_100":
+        config.scale1_100 = value;
+        break;
+      case "s1_0col":
+        config.s1_0col = value;
+        break;
+      case "s1_50col":
+        config.s1_50col = value;
+        break;
+      case "s1_100col":
+        config.s1_100col = value;
+        break;
+      case "l1col":
+        config.l1col = value;
+        break;
+      case "a1col":
+        config.a1col = value;
+        break;
+      case "k1col":
+        config.k1col = value;
+        break;
+      case "p1col":
+        config.p1col = value;
+        break;
+      case "blper":
+        config.blPer = value;
+        break;
+      case "blinput":
+        config.blInput = value;
+        break;
+      case "buinput":
+        config.buInput = value;
+        break;
+      case "bulabel1":
+        config.buLabel1 = value;
+        break;
+      case "bulabel2":
+        config.buLabel2 = value;
+        break;
+      case "almtxt1":
+        config.almTxt1 = value;
+        break;
+      case "flash":
+        config.flash = value;
+        break;
+    }
+  }
+
+  return config;
+}

@@ -5,6 +5,7 @@ import {
   generateConfigFile,
   htmlToRgb565,
   parseA1col,
+  parseConfigFile,
   parseVoltageFromReading,
   rgb565ToHtml,
 } from "./config";
@@ -38,6 +39,16 @@ function createUI(): void {
   document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
     <div class="container">
       <h1>Panel Pilot SGD Config Uploader</h1>
+      
+      <div class="section import-export-section">
+        <h2>Import / Export Configuration</h2>
+        <div class="button-group">
+          <button id="importBtn" class="btn btn-secondary">Import Config File</button>
+          <button id="exportBtn" class="btn btn-secondary">Export Config File</button>
+        </div>
+        <input type="file" id="importFileInput" accept=".cfg,.txt" style="display: none;">
+        <div id="importStatus" class="status" style="display: none;"></div>
+      </div>
       
       <div class="section connection-section">
         <h2>Serial Connection</h2>
@@ -389,6 +400,46 @@ let lastRdg1Voltage: string | null = null;
 let lastRdg2Voltage: string | null = null;
 
 function setupEventListeners(): void {
+  // Import button - trigger file input click
+  document.getElementById("importBtn")!.addEventListener("click", () => {
+    document.getElementById("importFileInput")!.click();
+  });
+
+  // File input change - handle import
+  document.getElementById("importFileInput")!.addEventListener("change", async (e) => {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    try {
+      const content = await file.text();
+      currentConfig = parseConfigFile(content);
+      // Re-create UI to reflect imported config
+      createUI();
+      showStatus("importStatus", `Imported: ${file.name}`, "success");
+      document.getElementById("importStatus")!.style.display = "block";
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      showStatus("importStatus", `Import failed: ${errorMessage}`, "error");
+      document.getElementById("importStatus")!.style.display = "block";
+    }
+    // Reset the input so the same file can be imported again
+    input.value = "";
+  });
+
+  // Export button - download config file
+  document.getElementById("exportBtn")!.addEventListener("click", () => {
+    updateConfigFromForm();
+    const configContent = generateConfigFile(currentConfig);
+    const blob = new Blob([configContent], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "Configuration.cfg";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
   // Connect button
   document.getElementById("connectBtn")!.addEventListener("click", async () => {
     try {
