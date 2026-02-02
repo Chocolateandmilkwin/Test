@@ -451,8 +451,14 @@ function setupEventListeners(): void {
       device.clearBuffer();
       await device.send('s');
       
-      // Wait for 'XC' response
-      await device.waitFor('XC', 5000);
+      // Wait for 'XMODEM' response indicating transfer started
+      await device.waitFor('XMODEM', 5000);
+      
+      // Clear buffer to ensure we detect the actual 'C' command, not a 'C' in the message text
+      device.clearBuffer();
+      
+      // Wait for 'C' character indicating ready to receive
+      await device.waitFor('C', 5000);
       
       showStatus('uploadStatus', 'Sending configuration via XMODEM...', 'info');
       
