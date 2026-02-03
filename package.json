@@ -3,13 +3,71 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "main": "electron/main.js",
+  "description": "Panel Pilot SGD Configuration Uploader",
+  "author": "Lascar Electronics",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "build:singlefile": "tsc && vite build --mode singlefile",
+    "preview": "vite preview",
+    "generate-icons": "node scripts/generate-icons.mjs",
+    "electron:dev": "npm run build && electron .",
+    "electron:build": "npm run generate-icons && npm run build && electron-builder --publish never",
+    "electron:build:win": "npm run generate-icons && npm run build && electron-builder --win --publish never",
+    "electron:build:mac": "npm run generate-icons && npm run build && electron-builder --mac --publish never",
+    "electron:build:linux": "npm run generate-icons && npm run build && electron-builder --linux --publish never",
+    "electron:build:all": "npm run generate-icons && npm run build && electron-builder --win --mac --linux --publish never",
+    "release:singlefile": "npm run build:singlefile",
+    "release:desktop": "npm run electron:build:all"
   },
   "devDependencies": {
+    "electron": "^35.7.5",
+    "electron-builder": "^26.7.0",
+    "sharp": "^0.33.5",
     "typescript": "~5.9.3",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "vite-plugin-singlefile": "^2.3.0"
+  },
+  "build": {
+    "appId": "com.lascar.config-changer",
+    "productName": "Panel Pilot SGD Config Uploader",
+    "directories": {
+      "output": "release",
+      "buildResources": "build-resources"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "public/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "build-resources/icon.png"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "icon": "build-resources/icon.png"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "build-resources/icon.png",
+      "category": "Utility"
+    }
   }
 }
