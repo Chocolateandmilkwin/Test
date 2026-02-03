@@ -138,6 +138,25 @@ h3 {
   color: #2b6cb0;
 }
 
+.validation-box {
+  margin-bottom: 1rem;
+  padding: 12px 16px;
+  border-radius: 6px;
+  background-color: #fefcbf;
+  border: 1px solid #ecc94b;
+  color: #744210;
+  font-size: 0.9em;
+}
+
+.validation-box ul {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1.5rem;
+}
+
+.validation-box li {
+  margin-bottom: 0.25rem;
+}
+
 .voltage-display {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -206,6 +225,12 @@ h3 {
   transition: border-color 0.2s;
 }
 
+.form-group input[type="color"] {
+  height: 40px;
+  padding: 2px;
+  cursor: pointer;
+}
+
 .form-group input:focus {
   outline: none;
   border-color: #3182ce;
@@ -216,6 +241,36 @@ h3 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1rem;
+}
+
+.arc-colors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+  gap: 0.5rem;
+  background: #f7fafc;
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.arc-color-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.arc-color-item label {
+  font-size: 0.75em;
+  color: #718096;
+}
+
+.arc-color-item input[type="color"] {
+  width: 40px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .calibration-group {
@@ -347,6 +402,24 @@ h3 {
   .calibration-group {
     background: #1a202c;
   }
+
+  .arc-colors-grid {
+    background: #1a202c;
+  }
+
+  .arc-color-item label {
+    color: #a0aec0;
+  }
+
+  .arc-color-item input[type="color"] {
+    border-color: #4a5568;
+  }
+
+  .validation-box {
+    background-color: #5c4813;
+    border-color: #d69e2e;
+    color: #fefcbf;
+  }
   
   .voltage-card {
     background: #1a202c;
@@ -448,6 +521,10 @@ h3 {
   margin-left: 0;
   font-size: 0.8em;
   color: #718096;
+}
+
+.readings-toggle {
+  margin-bottom: 1rem;
 }
 
 @media (prefers-color-scheme: dark) {
