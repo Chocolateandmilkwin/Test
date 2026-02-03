@@ -3,13 +3,18 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "description": "Lascar Screen Config Changer Tool",
+  "author": "Lyngaa Marine",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "build:singlefile": "tsc && vite build --mode singlefile",
+    "preview": "vite preview",
+    "release:singlefile": "npm run build:singlefile"
   },
   "devDependencies": {
     "typescript": "~5.9.3",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "vite-plugin-singlefile": "^2.3.0"
   }
 }
